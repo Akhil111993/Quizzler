@@ -1,6 +1,6 @@
-# c_sharp_interview_questions
+# Quizzler app made in flutter
 
-simple  interview questions app for c# language
+simple  true or false question - app for c# language
 
 ## Getting Started
 
