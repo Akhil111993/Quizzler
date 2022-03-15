@@ -1,4 +1,8 @@
+import 'package:c_sharp_interview_questions/questionBrain.dart';
 import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+
+QuestionBrain questionBrain = QuestionBrain();
 
 void main() {
   runApp(const MyApp());
@@ -38,65 +42,39 @@ class _Screen extends StatefulWidget {
 }
 
 class _ScreenState extends State<_Screen> {
-  List<String> questions = [
-    'Arithmetic operators are called binary operators when you use two arguments with each operator',
-    'The data components of a class often are called its iteration',
-    'One execution of any loop is called a(n) pretest',
-    'A class is a number that uniquely identifies an object',
-    'Properties have object that specify the statements that execute when a class\'s fields are accessed',
-    'The while loop checks a value at the "top" of the loop before the body has a chance to execute',
-    'The public modifier allows unlimited access to a method',
-    'A destructor contains the actions you require when an instance of a class is destroyed',
-    'The block of statements executed in a loop is known as the iteration',
-    'You use the keyword switch as a modifier to indicate an output parameter',
-  ];
-  List<bool> answers = [
-    true,
-    false,
-    false,
-    false,
-    false,
-    true,
-    true,
-    true,
-    false,
-    false
-  ];
   List<Icon> icons = [];
-  int _index = 0;
   int score = 0;
 
-  void rightOrWrong(bool correct) {
-    if (correct) {
-      icons.add(const Icon(
-        Icons.check,
-        color: Colors.green,
-      ));
-      score++;
-    } else {
-      icons.add(const Icon(
-        Icons.close,
-        color: Colors.red,
-      ));
-    }
-    if (_index < questions.length - 1) {
-      _index++;
-    } else {
-      _index = 0;
+  void clearIcons() {
+    icons.clear();
+    score = 0;
+  }
 
-      int scoreCopy = score;
-      score = 0;
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SecondRoute(
-            score: scoreCopy,
-            total: questions.length,
-          ),
-        ),
-      );
-      icons.clear();
-    }
+  void checkAnswer(bool answer) {
+    setState(() {
+      if (questionBrain.getAnswer() == answer) {
+        icons.add(const Icon(
+          Icons.check,
+          color: Colors.green,
+        ));
+        score++;
+      } else {
+        icons.add(const Icon(
+          Icons.close,
+          color: Colors.red,
+        ));
+      }
+
+      if (questionBrain.getCurrentQNo() == questionBrain.getTotal() - 1) {
+        Alert(
+                context: context,
+                title: "Congratulations!",
+                desc: "You finished the quiz")
+            .show();
+        clearIcons();
+      }
+      questionBrain.nextQuestion();
+    });
   }
 
   @override
@@ -107,7 +85,7 @@ class _ScreenState extends State<_Screen> {
         Expanded(
           child: Center(
             child: Text(
-              questions[_index],
+              questionBrain.getQuestion(),
               textAlign: TextAlign.justify,
               style: const TextStyle(color: Colors.white, fontSize: 25.0),
             ),
@@ -119,9 +97,7 @@ class _ScreenState extends State<_Screen> {
               style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(Colors.green)),
               onPressed: () {
-                setState(() {
-                  rightOrWrong(answers[_index]);
-                });
+                checkAnswer(true);
               },
               child: const Center(
                 child: Text('True'),
@@ -131,9 +107,7 @@ class _ScreenState extends State<_Screen> {
               style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(Colors.red)),
               onPressed: () {
-                setState(() {
-                  rightOrWrong(!answers[_index]);
-                });
+                checkAnswer(false);
               },
               child: const Center(
                 child: Text('False'),
@@ -148,47 +122,6 @@ class _ScreenState extends State<_Screen> {
           ],
         ),
       ],
-    );
-  }
-}
-
-class SecondRoute extends StatelessWidget {
-  final int score;
-  final int total;
-  const SecondRoute({Key? key, required this.score, required this.total})
-      : super(key: key);
-
-  Text congratsText() {
-    if (score <= total / 3) {
-      return Text(
-        'Oops!\n\nYour score is $score',
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 40.0,
-        ),
-      );
-    } else {
-      return Text(
-        'Congratulations!\n\nYour score is $score',
-        textAlign: TextAlign.center,
-        style: const TextStyle(color: Colors.white, fontSize: 40.0),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Container(
-          color: Colors.black,
-          child: Center(
-            child: congratsText(),
-          ),
-        ),
-      ),
     );
   }
 }
